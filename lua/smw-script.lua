@@ -1,5 +1,6 @@
--- Sample script for Bizhawk.
+-- Sample script for Bizhawk
 
+-- typedef
 byte = bizstring.hex
 u8 = mainmemory.read_u8
 s8 = mainmemory.read_s8
@@ -11,6 +12,8 @@ u24 = mainmemory.read_u24_le
 s24 = mainmemory.read_s24_le
 w24 = mainmemory.write_u32_le
 
+
+-- RAM address table
 WRAM = {
   TRUE_FRAME      = 0x0013,
   EFFECTIVE_FRAME = 0x0014,
@@ -24,7 +27,9 @@ WRAM = {
   PLAYER_XSUB     = 0x13DA,
   PLAYER_YSUB     = 0x13DC,
 
-  PLAYER_SPDX     = 0x007B,
+  PLAYER_XSPD     = 0x007B,
+  PLAYER_YSPD     = 0x007D,
+  PLAYER_PMETER   = 0x13E4,
 
   PAUSEFLAG       = 0x13D4,
   RNG_OUTPUT      = 0x148D,
@@ -37,7 +42,6 @@ function DisplayGameInfo()
   local InfoXpos   = 0
   local InfoYpos   = 10
   local LineHeight
-  local LineCount
 
   -- Change line height for font
   if FONT_PIXEL == "fceux" then
@@ -46,17 +50,20 @@ function DisplayGameInfo()
     LineHeight = 7
   end
 
+  function DrawPixelText(LineCount, string)
+    gui.pixelText(InfoXpos, InfoYpos + (LineCount - 1) * LineHeight, string)
+  end
+
   gui.defaultPixelFont(FONT_PIXEL)
-  -- Draw Text
-  gui.pixelText(InfoXpos, InfoYpos + 0 * LineHeight, "RNG:" .. byte(u8(WRAM.RNG_OUTPUT)) .. byte(u8(WRAM.RNG_OUTPUT + 1)))
-  gui.pixelText(InfoXpos, InfoYpos + 1 * LineHeight,
-    "PlayerX:" .. u8(WRAM.PLAYER_XPOS) .. "." .. byte(u8(WRAM.PLAYER_XSUB)))
-  gui.pixelText(InfoXpos, InfoYpos + 2 * LineHeight,
-    "PlayerY:" .. u8(WRAM.PLAYER_YPOS) .. "." .. byte(u8(WRAM.PLAYER_YSUB)))
-  gui.pixelText(InfoXpos, InfoYpos + 3 * LineHeight, "TRUEFRAME:" .. u8(WRAM.TRUE_FRAME))
-  gui.pixelText(InfoXpos, InfoYpos + 4 * LineHeight, "EFFECTIVE:" .. u8(WRAM.EFFECTIVE_FRAME))
-  -- gui.pixelText(InfoXpos, InfoYpos + 5 * LineHeight)
-  gui.pixelText(InfoXpos, InfoYpos + 6 * LineHeight, "Speed:" .. s8(WRAM.PLAYER_SPDX))
+
+  DrawPixelText(1, "TRUE_F:" .. u8(WRAM.TRUE_FRAME))
+  DrawPixelText(2, "EFF_F:" .. u8(WRAM.EFFECTIVE_FRAME))
+  DrawPixelText(3, "RAND:" .. u8(WRAM.RNG_OUTPUT))
+
+  DrawPixelText(5, "SPD:" .. s8(WRAM.PLAYER_XSPD))
+  DrawPixelText(6, "P-METER:" .. u8(WRAM.PLAYER_PMETER))
+  DrawPixelText(8, "XPOS:" .. u16(WRAM.PLAYER_XPOS) .. "." .. byte(u8(WRAM.PLAYER_XSUB)))
+  DrawPixelText(9, "YPOS:" .. u16(WRAM.PLAYER_YPOS) .. "." .. byte(u8(WRAM.PLAYER_YSUB)))
 end
 
 -- Main loop
